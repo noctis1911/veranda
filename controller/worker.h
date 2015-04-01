@@ -21,7 +21,7 @@ class Worker : public QObject
 {
     Q_OBJECT
 public:
-    explicit Worker(QObject *parent = 0);
+    explicit Worker(QObject *parent = 0, QSqlDatabase db = 0);
     QXmlStreamReader xml;
 signals:
     
@@ -30,16 +30,25 @@ public slots:
 private slots:
     void doWork();
     void getResponSkyW();
-    //void getUpdateData();
     void replyFinished(QNetworkReply* reply);
-    //void replyUpdate(QNetworkReply* reply);
+
 private:
     QTimer timer;
     util_skyw *read;
     get_db *get;
-
-
     //skywaveNetwork skw;
+
+    int idx_ship;
+    int sum_ship;
+    int cek_replay;
+
+    QString modem_id;
+    QString access_id;
+    QString password;
+
+    QSqlDatabase Qdb;
+
+    void get_modem_info(QSqlDatabase db, int id);
 };
 
 #endif // TIMER_H

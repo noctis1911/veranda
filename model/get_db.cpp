@@ -19,12 +19,29 @@ int get_db::sum_ship(QSqlDatabase db){
     }
 }
 
+int get_db::id_tu_ship(QSqlDatabase db, int id_ship, int urutan){
+    QSqlQuery q(db);
+    QString query;
+
+    query.sprintf("select id_tu from parsing_ref where id_ship = %d and urutan_data_monita = %d", id_ship, urutan);
+
+    q.prepare(query);
+    if(!q.exec()){
+        qDebug() << "err():";
+        return (int) 0;
+    }
+    else{
+        while(q.next()){
+            return (int) q.value(0).toInt();
+        }
+    }
+}
+
 void get_db::modem_info(QSqlDatabase db, int id, QString modem_id, QString access_id, QString password){
     QSqlQuery q(db);
     QString query;
 
-
-    query.sprintf("select modem_id, access_id, password where id = %d", id);
+    query.sprintf("select modem_id, access_id, password from ship where id = %d", id);
 
     q.prepare(query);
     if(!q.exec()){

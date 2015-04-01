@@ -69,7 +69,7 @@ void db_config::crt_table_ship(QSqlDatabase db){
 
 void db_config::crt_table_data(QSqlDatabase db){
     QSqlQuery q(db);
-    q.prepare("create table data (id integer primary key autoincrement, id_tu integer, id_trip integer, data_time DATETIME)"); q.exec();
+    q.prepare("create table data (id integer primary key autoincrement, id_tu integer, value float, id_trip integer, data_time DATETIME)"); q.exec();
 }
 
 void db_config::crt_table_parsing(QSqlDatabase db){

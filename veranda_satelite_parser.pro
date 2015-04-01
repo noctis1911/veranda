@@ -26,7 +26,8 @@ SOURCES += main.cpp \
     util/parsing_fuction.cpp \
     model/db_config.cpp \
     model/get_db.cpp \
-    controller/worker.cpp
+    controller/worker.cpp \
+    model/save_db.cpp
 
 HEADERS += \
     model/modelmodem.h \
@@ -37,4 +38,5 @@ HEADERS += \
     util/parsing_fuction.h \
     model/db_config.h \
     model/get_db.h \
-    controller/worker.h
+    controller/worker.h \
+    model/save_db.h

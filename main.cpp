@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
 
     db_config *db_conf = new db_config();
 
-    Worker worker;
+    Worker worker(0, db_conf->cek_exist_db(path+"/db/marine"));
 
     return a.exec();
 }

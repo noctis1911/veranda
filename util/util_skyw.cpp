@@ -7,8 +7,10 @@ util_skyw::util_skyw(QObject *parent) :
 {
 }
 
-void util_skyw::parse_xml(QString skyw, QSqlDatabase db)  {
+void util_skyw::parse_xml(QString skyw, QSqlDatabase db, int id_ship)  {
     int cnt = 0;
+    int cnt_tu = 1;
+    QString epochtime;
     QString el;
     QXmlStreamReader xml;
     QByteArray text;
@@ -24,10 +26,7 @@ void util_skyw::parse_xml(QString skyw, QSqlDatabase db)  {
         }
         //*/
         if(token == QXmlStreamReader::StartElement) {
-            //qDebug()<<"  xmlname: "<<xml.name().toString();
-
             if(xml.name() == "ID") {
-                cnt = 0;
                 QString ID = xml.readElementText();
                 qDebug()<<"  xmlname: "<<xml.name().toString()<<":"<< ID;
             }
@@ -44,6 +43,10 @@ void util_skyw::parse_xml(QString skyw, QSqlDatabase db)  {
                 qDebug()<<"  xmlname: "<<xml.name().toString()<<":"<< MobileID;
                 xmls.mobile_id = MobileID;
             }
+            if(xml.name() == "Payload"){
+                cnt = 0;
+                cnt_tu = 1;
+            }
             if(xml.name() == "Field") {
                 QXmlStreamAttributes attributes = xml.attributes();
                 int value = attributes.value("Value").toString().toInt();
@@ -52,13 +55,23 @@ void util_skyw::parse_xml(QString skyw, QSqlDatabase db)  {
 
                 if (cnt == 0){
                     const QDateTime time = QDateTime::fromTime_t((int)data_f);
-                    QString epochtime = time.toString("yyyy-MM-dd hh:mm:ss").toAscii().data();
+                    epochtime = time.toString("yyyy-MM-dd hh:mm:ss").toAscii().data();
 
                     qDebug() << epochtime;
                     cnt = 1;
                 }
                 else{
-                    qDebug() << data_f;
+                    int id_tu = get.id_tu_ship(db, id_ship, cnt_tu);
+
+                    switch (id_tu){
+                    case 0:
+                        break;
+                    default:
+                        qDebug() <<"  data: "<<" [id_tu]: "<<id_tu<<" [value]: "<<data_f;
+                        save.data(db, data_f, id_tu, 0, epochtime);
+                        break;
+                    }
+                    cnt_tu++;
                 }
             }
         }

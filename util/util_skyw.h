@@ -9,19 +9,24 @@
 #include <QSqlQuery>
 
 #include <../model/struct_xml.h>
+#include <../model/get_db.h>
+#include <../model/save_db.h>
 
 class util_skyw : public QObject
 {
     Q_OBJECT
 public:
     explicit util_skyw(QObject *parent = 0);
-    void parse_xml(QString skyw, QSqlDatabase db);
+    void parse_xml(QString skyw, QSqlDatabase db, int id_ship);
 
 signals:
     
 public slots:
 
 private:
+    get_db get;
+    save_db save;
+
     int jum_dat;
 };
 

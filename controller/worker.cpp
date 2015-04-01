@@ -2,22 +2,30 @@
 
 extern struct xmll xmls;
 
-Worker::Worker(QObject *parent) : QObject(parent){
-    connect(&timer, SIGNAL(timeout()), this, SLOT(doWork()));
+Worker::Worker(QObject *parent, QSqlDatabase db) : QObject(parent){
+    //connect(&timer, SIGNAL(timeout()), this, SLOT(doWork()));
+    //timer.start(5000);
+
+    Qdb = db;
+    cek_replay = 0;
+
+    idx_ship = 1;
+    sum_ship = get->sum_ship(db);
+    //this->get_modem_info(db, idx_ship);
 
     this->doWork();
-    timer.start(5000);
-    this->getResponSkyW();
 }
 
 void Worker::doWork() {
     QDateTime dateTime = QDateTime::currentDateTime();
-
     qDebug() << "waktu:"<<dateTime.toString();
 
-    skywaveNetwork skw;
+    this->get_modem_info(Qdb, idx_ship);
+    this->getResponSkyW();
+
+    //skywaveNetwork skw;
     //skw.requestData("wdwd");
-    skw.wait();
+    //skw.wait();
 }
 
 
@@ -28,7 +36,10 @@ void Worker::getResponSkyW(){
     qDebug()<< __FUNCTION__;
 
     QNetworkRequest request;
-    QUrl url =  QUrl::fromEncoded("http://isatdatapro.skywave.com/GLGW/GWServices_v1/RestMessages.svc/get_return_messages.xml/?access_id=70000214&password=STSATI2010&start_utc=2015-03-08%2000:35:00&mobile_id=01050309SKYA416");
+
+    QString urls;
+    urls.sprintf("http://isatdatapro.skywave.com/GLGW/GWServices_v1/RestMessages.svc/get_return_messages.xml/?access_id=%s&password=%s&start_utc=2015-04-01%2015:30:00&mobile_id=%s", access_id.toAscii().data(), password.toAscii().data(), modem_id.toAscii().data());
+    QUrl url =  QUrl::fromEncoded(urls.toAscii().data());
     //QUrl url =  QUrl::fromEncoded("http://localhost");
     request.setUrl(url);
     manager->get(request);
@@ -38,61 +49,33 @@ void Worker::getResponSkyW(){
 void Worker::replyFinished(QNetworkReply* reply){
     QString readAll=reply->readAll();
 
-    QSqlDatabase db;
-
-    read->parse_xml(readAll, db);
-
-//    if(readAll!=0){
-//        qDebug("Your Connection OK!!!...");
-//        QThread::sleep(3);
-
-//        QDateTime dateTime = QDateTime::currentDateTime();
-//        qDebug() << "SELESAI replay waktu:"<<dateTime.toString();
-//        QThread::sleep(3);
-
-//        qDebug()<<"is Reading Data!!!"<<readAll;
-//        util_skyw bacaxml;
-//        bacaxml.baca_xml(readAll);
-
-//        qDebug() << "  jumlah RawPayload : " << xmls.jml;
-//        }else if(readAll== NULL){
-//        qDebug("Check Your Connection !!!");
-//    }
-
-
+    read->parse_xml(readAll, Qdb, idx_ship);
     // --> insert database.
+
+    qDebug() << ">>>>>>>>>>>>>>>>>>>>>>>>> HABIS <<<<<<<<<<<<<<<<<<<<<<<<";
+    if (idx_ship != sum_ship){
+        idx_ship++;
+        this->doWork();
+    }else{
+        idx_ship = 1;
+        qDebug() << " ------------------------ STOP -------------------------";
+    }
 }
 
-//void Worker::getUpdateData(){
-//    QNetworkAccessManager *update = new QNetworkAccessManager();
-
-//    connect(update, SIGNAL(finished(QNetworkReply*)), this, SLOT(replyFinished(QNetworkReply *)));
-//    qDebug()<< __FUNCTION__;
-
-//    QNetworkRequest request;
-//    QUrl url =  QUrl::fromEncoded("http://isatdatapro.skywave.com/GLGW/GWServices_v1/RestMessages.svc/get_return_messages.xml/?access_id=70000214&password=STSATI2010&from_id=1450235&start_utc=2015-03-16%2000:35:00&mobile_id=01020268SKY7559");
-//    //QUrl url =  QUrl::fromEncoded("http://localhost");
-//    request.setUrl(url);
-//    update->get(request);
-//    qDebug()<<"Waiting Data...";
-//}
-//void Worker::replyUpdate(QNetworkReply *reply){
-//    QString readAll=reply->readAll();
-
-//    if(readAll!=0){
-
-//        QDateTime dateTime = QDateTime::currentDateTime();
-//        qDebug() << "Selesai Update Data!!! replay waktu:"<<dateTime.toString();
-//        QThread::sleep(5);
-//        qDebug()<<"is Reading New Data!!!"<<readAll;
-//        util_skyw bacaxml;
-//        bacaxml.baca_xml(readAll);
-
-//        qDebug() << "  jumlah RawPayload : " << xmls.jml;
-//        }else if(readAll== NULL){
-//        qDebug("Check Your Connection !!!");
-
-//    }
-//}
-
-
+void Worker::get_modem_info(QSqlDatabase db, int id){
+    QSqlQuery q(db);
+    QString query;
+    query.sprintf("select modem_id, access_id, password from ship where id = %d", id);
+    q.prepare(query);
+    if(!q.exec()){
+        qDebug() << "err():";
+        return;
+    }
+    else{
+        while(q.next()){
+            modem_id = q.value(0).toString();
+            access_id = q.value(1).toString();
+            password = q.value(2).toString();
+        }
+    }
+}
