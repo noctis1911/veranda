@@ -8,7 +8,6 @@
 #include <QSqlDatabase>
 #include <QSqlQuery>
 
-#include <../model/struct_xml.h>
 #include <../model/get_db.h>
 #include <../model/save_db.h>
 
@@ -17,7 +16,7 @@ class util_skyw : public QObject
     Q_OBJECT
 public:
     explicit util_skyw(QObject *parent = 0);
-    void parse_xml(QString skyw, QSqlDatabase db, int id_ship);
+    void parse_xml(QString skyw, QSqlDatabase db, int id_ship, int SIN, int MIN);
 
 signals:
     

@@ -28,6 +28,7 @@ signals:
 public slots:
 
 private slots:
+    void CheckForRequest();
     void doWork();
     void getResponSkyW();
     void replyFinished(QNetworkReply* reply);
@@ -45,6 +46,9 @@ private:
     QString modem_id;
     QString access_id;
     QString password;
+    QString nextutc;
+    int SIN;
+    int MIN;
 
     QSqlDatabase Qdb;
 

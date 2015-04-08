@@ -20,23 +20,17 @@ OBJECTS_DIR = compile
 MOC_DIR = compile
 
 SOURCES += main.cpp \
-    model/modelmodem.cpp \
     util/util_skyw.cpp \
     view/skywavenetwork.cpp \
-    util/parsing_fuction.cpp \
-    model/db_config.cpp \
     model/get_db.cpp \
     controller/worker.cpp \
-    model/save_db.cpp
+    model/save_db.cpp \
+    model/init_mysql.cpp
 
 HEADERS += \
-    model/modelmodem.h \
     util/util_skyw.h \
-    util/initdb.h \
     view/skywavenetwork.h \
-    model/struct_xml.h \
-    util/parsing_fuction.h \
-    model/db_config.h \
     model/get_db.h \
     controller/worker.h \
-    model/save_db.h
+    model/save_db.h \
+    model/init_mysql.h
